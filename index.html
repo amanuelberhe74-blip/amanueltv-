@@ -67,6 +67,65 @@ footer {
 <footer>
   © 2026 AMANUEL TV
 </footer>
+<section class="video-box">
+  <h2>📤 ቪዲዮ ጫን</h2>
 
+  <input type="file" id="videoFile"
+    accept="video/mp4,video/quicktime,video/webm">
+
+  <button id="uploadBtn">Upload</button>
+
+  <p id="uploadStatus"></p>
+  <div id="uploadedVideo"></div>
+</section>
+
+<script>
+const cloudName = "wkmfiab5";
+const uploadPreset = "amanueltv_upload";
+
+document.getElementById("uploadBtn").onclick = async function() {
+  const file = document.getElementById("videoFile").files[0];
+  const status = document.getElementById("uploadStatus");
+  const button = this;
+
+  if (!file) {
+    status.textContent = "ቪዲዮ ምረጥ።";
+    return;
+  }
+
+  const data = new FormData();
+  data.append("file", file);
+  data.append("upload_preset", uploadPreset);
+
+  button.disabled = true;
+  status.textContent = "በመጫን ላይ...";
+
+  try {
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
+      { method: "POST", body: data }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error?.message || "Upload failed");
+    }
+
+    const video = document.createElement("video");
+    video.controls = true;
+    video.src = result.secure_url;
+    video.style.width = "100%";
+
+    document.getElementById("uploadedVideo").appendChild(video);
+    status.textContent = "ቪዲዮው ተጫኗል።";
+
+  } catch (error) {
+    status.textContent = "ስህተት፦ " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+};
+</script>
 </body>
 </html>
