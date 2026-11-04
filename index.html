@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="am">
 <head>
@@ -6,144 +5,205 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AMANUEL TV</title>
 <style>
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  background: #080d18;
-  color: white;
-  font-family: Arial, sans-serif;
-}
-header {
-  background: #101c32;
-  padding: 20px;
-  text-align: center;
-  border-bottom: 2px solid #168cff;
-}
-header h1 {
-  color: #168cff;
-  margin: 0;
-}
-header p { color: #b8c9e6; }
-main { padding: 18px; }
-h2 { color: #168cff; }
-.video-box {
-  background: #14223a;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-}
-video {
-  width: 100%;
-  border-radius: 8px;
-  background: black;
-}
-footer {
-  text-align: center;
-  padding: 20px;
-  color: #91a4c2;
-}
+*{box-sizing:border-box}
+body{margin:0;background:#080d18;color:white;font-family:Arial,sans-serif}
+header{background:#101c32;padding:22px;text-align:center}
+h1{color:#39a9ff;margin:0}
+main{max-width:850px;margin:auto;padding:15px}
+section{background:#101c32;padding:15px;margin:15px 0;border-radius:12px}
+h2{color:#39a9ff}
+video{width:100%;border-radius:10px;margin:10px 0}
+iframe{width:100%;height:230px;border:0;border-radius:10px;margin:10px 0}
+input,button{width:100%;padding:13px;margin:7px 0;border-radius:8px;border:0}
+button{background:#1689e8;color:white;font-size:16px;font-weight:bold}
+button:disabled{opacity:.5}
+.small{color:#b9c8dc;font-size:13px}
+#status{color:#72d69b}
+footer{text-align:center;padding:20px;color:#aab7c8}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>AMANUEL TV</h1>
-  <p>Welcome to Amanuel TV</p>
+<h1>AMANUEL TV</h1>
+<p>Welcome to Amanuel TV</p>
 </header>
 
 <main>
-  <h2>🎬 ቪዲዮዎች</h2>
+<section>
+<h2>🎬 ቪዲዮዎች</h2>
 
-  <div class="video-box">
-    <video controls>
-      <source src="video.mp4" type="video/mp4">
-    </video>
-    <p>የመጀመሪያ ቪዲዮ</p>
-  </div>
+<h3>የመጀመሪያ ቪዲዮ</h3>
+<iframe
+src="https://player.cloudinary.com/embed/?cloud_name=wkmfiab5&public_id=qhv0gfethzxxemburwkk"
+allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+allowfullscreen>
+</iframe>
 
-  <p>በቅርቡ ተጨማሪ ቪዲዮዎች ይጨመራሉ።</p>
-<div class="video-box">
-  <h2>🎬 ቪዲዮ 1</h2>
-  <iframe
-    src="https://player.cloudinary.com/embed/?cloud_name=wkmfiab5&public_id=qhv0gfethzxxemburwkk"
-    width="100%" height="250"
-    allowfullscreen>
-  </iframe>
-</div>
+<h3>ሁለተኛ ቪዲዮ</h3>
+<iframe
+src="https://player.cloudinary.com/embed/?cloud_name=wkmfiab5&public_id=yhflwmpn9siir4llkkzm"
+allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+allowfullscreen>
+</iframe>
 
-<div class="video-box">
-  <h2>🎬 ቪዲዮ 2</h2>
-  <iframe
-    src="https://player.cloudinary.com/embed/?cloud_name=wkmfiab5&public_id=yhflwmpn9siir4llkkzm"
-    width="100%" height="250"
-    allowfullscreen>
-  </iframe>
-</div>
-</main>
-
-<footer>
-  © 2026 AMANUEL TV
-</footer>
-<section class="video-box">
-  <h2>📤 ቪዲዮ ጫን</h2>
-
-  <input type="file" id="videoFile"
-    accept="video/mp4,video/quicktime,video/webm">
-
-  <button id="uploadBtn">Upload</button>
-
-  <p id="uploadStatus"></p>
-  <div id="uploadedVideo"></div>
+<h2>🌐 አዳዲስ ቪዲዮዎች</h2>
+<div id="videoList">ቪዲዮዎች በመጫን ላይ...</div>
 </section>
 
-<script>
+<section>
+<h2>📤 ቪዲዮ ጫን</h2>
+<p class="small">ቪዲዮህን ምረጥና ለሁሉም እንዲታይ ጫን።</p>
+
+<input id="videoTitle" type="text" placeholder="የቪዲዮው ስም">
+<input id="videoFile" type="file" accept="video/mp4,video/quicktime,video/webm">
+<button id="uploadButton" onclick="uploadVideo()">ቪዲዮ ጫን</button>
+<p id="status"></p>
+</section>
+</main>
+
+<footer>© 2026 AMANUEL TV</footer>
+
+<script type="module">
+import {initializeApp} from
+"https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+
+import {getFirestore,collection,addDoc,getDocs,
+query,orderBy,serverTimestamp} from
+"https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+import {getAuth,signInAnonymously} from
+"https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD51vjy781guGrfkprZ3s103rZoAmb1R44",
+  authDomain: "amnuel-tv.firebaseapp.com",
+  projectId: "amnuel-tv",
+  storageBucket: "amnuel-tv.firebasestorage.app",
+  messagingSenderId: "1581800105",
+  appId: "1:1581800105:web:56709309030ed2052527b8",
+  measurementId: "G-MXJL2XBH2M"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
 const cloudName = "wkmfiab5";
 const uploadPreset = "amanueltv_upload";
 
-document.getElementById("uploadBtn").onclick = async function() {
-  const file = document.getElementById("videoFile").files[0];
-  const status = document.getElementById("uploadStatus");
-  const button = this;
+const statusText = document.getElementById("status");
+const uploadButton = document.getElementById("uploadButton");
 
-  if (!file) {
-    status.textContent = "ቪዲዮ ምረጥ።";
+async function startApp(){
+  try{
+    await signInAnonymously(auth);
+    await loadVideos();
+  }catch(error){
+    document.getElementById("videoList").innerText =
+    "ቪዲዮዎችን ለማሳየት ችግር ተፈጥሯል።";
+    console.error(error);
+  }
+}
+
+async function loadVideos(){
+  const list = document.getElementById("videoList");
+  list.innerHTML = "";
+
+  try{
+    const q = query(
+      collection(db,"videos"),
+      orderBy("createdAt","desc")
+    );
+
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach((doc)=>{
+      const data = doc.data();
+
+      if(data.url && data.title){
+        const title = document.createElement("h3");
+        title.textContent = data.title;
+
+        const video = document.createElement("video");
+        video.src = data.url;
+        video.controls = true;
+        video.playsInline = true;
+
+        list.appendChild(title);
+        list.appendChild(video);
+      }
+    });
+
+    if(list.innerHTML === ""){
+      list.innerText = "እስካሁን አዲስ ቪዲዮ የለም።";
+    }
+  }catch(error){
+    list.innerText = "ቪዲዮዎችን ማምጣት አልተቻለም።";
+    console.error(error);
+  }
+}
+
+window.uploadVideo = async function(){
+  const title = document.getElementById("videoTitle").value.trim();
+  const file = document.getElementById("videoFile").files[0];
+
+  if(!title || !file){
+    statusText.innerText = "እባክህ የቪዲዮውን ስምና ቪዲዮውን ምረጥ።";
     return;
   }
 
-  const data = new FormData();
-  data.append("file", file);
-  data.append("upload_preset", uploadPreset);
+  if(!file.type.startsWith("video/")){
+    statusText.innerText = "እባክህ ቪዲዮ ምረጥ።";
+    return;
+  }
 
-  button.disabled = true;
-  status.textContent = "በመጫን ላይ...";
+  uploadButton.disabled = true;
+  statusText.innerText = "ቪዲዮው በመጫን ላይ ነው...";
 
-  try {
+  try{
+    if(!auth.currentUser){
+      await signInAnonymously(auth);
+    }
+
+    const formData = new FormData();
+    formData.append("file",file);
+    formData.append("upload_preset",uploadPreset);
+
     const response = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-      { method: "POST", body: data }
+      {method:"POST",body:formData}
     );
 
     const result = await response.json();
 
-    if (!response.ok) {
+    if(!response.ok){
       throw new Error(result.error?.message || "Upload failed");
     }
 
-    const video = document.createElement("video");
-    video.controls = true;
-    video.src = result.secure_url;
-    video.style.width = "100%";
+    await addDoc(collection(db,"videos"),{
+      title:title,
+      url:result.secure_url,
+      createdAt:serverTimestamp()
+    });
 
-    document.getElementById("uploadedVideo").appendChild(video);
-    status.textContent = "ቪዲዮው ተጫኗል።";
+    statusText.innerText = "ቪዲዮው ተጫኗል! ለሁሉም ይታያል።";
 
-  } catch (error) {
-    status.textContent = "ስህተት፦ " + error.message;
-  } finally {
-    button.disabled = false;
+    document.getElementById("videoTitle").value = "";
+    document.getElementById("videoFile").value = "";
+
+    await loadVideos();
+
+  }catch(error){
+    statusText.innerText =
+    "ችግር ተፈጥሯል። እባክህ እንደገና ሞክር።";
+    console.error(error);
   }
+
+  uploadButton.disabled = false;
 };
+
+startApp();
 </script>
 </body>
 </html>
- 
